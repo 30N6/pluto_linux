@@ -6,6 +6,15 @@
 
 menu "Triggers - standalone"
 
+config IIO_AXI_SPI_ENGINE_OFFLOAD_PWM_TRIGGER
+	tristate "ADI AXI SPI Engine Offload PWM trigger"
+	help
+	  Provides a trigger for an ADI AXI SPI Engine Offload that uses a PWM
+	  as the trigger source.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called "axi-spi-engine-offload-pwm-trigger".
+
 config IIO_HRTIMER_TRIGGER
 	tristate "High resolution timer trigger"
 	depends on IIO_SW_TRIGGER
