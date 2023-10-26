@@ -251,7 +251,7 @@
 		compatible = "adi,one-bit-adc-dac";
 		in-gpios = <&gpio_expander 22 1>, <&gpio_expander 23 1>;
 		out-gpios = <&gpio 113 0>, <&gpio_expander 18 1>, <&gpio 128 0>,
-		            <&gpio 118 0>, <&gpio 114 0>, <&gpio 126 0>;
+		            <&gpio 118 1>, <&gpio 114 1>, <&gpio 126 1>;
 
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -327,7 +327,7 @@
 
 		/* adi_ad9083 config */
 		adi,hp-en;
-		adi,vmax-microvolt = <1800>;
+		adi,vmax-microvolt = <2000>;
 		adi,fc-hz =  /bits/ 64 <125000000>; /* 125 MHz */
 		adi,rterm-ohms = <100>;
 		adi,backoff = <0>;
@@ -446,7 +446,7 @@
 		/* PLL1 config */
 		adi,pll1-feedback-src-vcxo;
 		adi,pll1-feedback-div = <10>;
-		adi,pll1-charge-pump-current-nA = <5000>;
+		adi,pll1-charge-pump-current-nA = <63500>;
 		adi,osc-in-diff-enable;
 
 		/* PLL2 config */
@@ -459,9 +459,9 @@
 		adi,pll2-m1-frequency = <ADF9528_DIST_CLK>;
 		adi,pll2-charge-pump-current-nA = <805000>;
 
-		adi,rpole2 = <RPOLE2_900_OHM>;
-		adi,rzero = <RZERO_1850_OHM>;
-		adi,cpole1 = <CPOLE1_16_PF>;
+		adi,rpole2 = <RPOLE2_225_OHM>;
+		adi,rzero = <RZERO_2750_OHM>;
+		adi,cpole1 = <CPOLE1_0_PF>;
 
 		adi,status-mon-pin0-function-select = <0xFF>; /* No function */
 		adi,status-mon-pin1-function-select = <0xFF>; /* No function */
