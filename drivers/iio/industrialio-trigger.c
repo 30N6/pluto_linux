@@ -4,6 +4,7 @@
  * Copyright (c) 2008 Jonathan Cameron
  */
 
+#include <linux/cleanup.h>
 #include <linux/kernel.h>
 #include <linux/idr.h>
 #include <linux/err.h>
@@ -158,6 +159,29 @@ static struct iio_trigger *iio_trigger_acquire_by_name(const char *name)
 
 	return trig;
 }
+
+/**
+ * iio_trigger_acquire_by_parent - finds a trigger with a given parent device
+ *
+ * A new reference is held on the returned trigger and must be released by the
+ * caller with iio_trigger_put().
+ *
+ * @parent: The parent device to search for.
+ * Return: The trigger if found, NULL otherwise.
+ */
+struct iio_trigger *iio_trigger_acquire_by_parent(struct device *parent)
+{
+	struct iio_trigger *trig;
+
+	guard(mutex)(&iio_trigger_list_lock);
+
+	list_for_each_entry(trig, &iio_trigger_list, list)
+		if (trig->dev.parent == parent)
+			return iio_trigger_get(trig);
+
+	return NULL;
+}
+EXPORT_SYMBOL_GPL(iio_trigger_acquire_by_parent);
 
 static void iio_reenable_work_fn(struct work_struct *work)
 {
