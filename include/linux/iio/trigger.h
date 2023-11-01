@@ -175,6 +175,8 @@ int iio_validate_own_trigger(struct iio_dev *idev, struct iio_trigger *trig);
 int iio_trigger_validate_own_device(struct iio_trigger *trig,
 				     struct iio_dev *indio_dev);
 
+struct iio_trigger *iio_trigger_acquire_by_parent(struct device *parent);
+
 #else
 struct iio_trigger;
 struct iio_trigger_ops;
