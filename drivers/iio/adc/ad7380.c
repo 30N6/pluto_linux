@@ -25,6 +25,8 @@
 #include <linux/iio/trigger_consumer.h>
 #include <linux/iio/triggered_buffer.h>
 
+#include "../trigger/api-spi-engine-offload-pwm-trigger.h"
+
 /* 2.5V internal reference voltage */
 #define AD7380_INTERNAL_REF_MV		2500
 
@@ -133,6 +135,8 @@ struct ad7380_state {
 	struct spi_device *spi;
 	struct regulator *vref;
 	struct regmap *regmap;
+	struct iio_trigger *offload_trigger;
+	struct spi_offload *spi_offload;
 	/*
 	 * DMA (thus cache coherency maintenance) requires the
 	 * transfer buffers to live in their own cache lines.
@@ -335,6 +339,50 @@ static const struct iio_info ad7380_info = {
 	.debugfs_reg_access = &ad7380_debugfs_reg_access,
 };
 
+static int ad7380_buffer_preenable(struct iio_dev *indio_dev)
+{
+	struct ad7380_state *st = iio_priv(indio_dev);
+	struct spi_transfer xfer = {
+		.bits_per_word = st->chip_info->channels[0].scan_type.realbits,
+		.len = 4,
+		.rx_buf = SPI_OFFLOAD_RX_SENTINEL,
+	};
+
+	return spi_offload_prepare(st->spi_offload, st->spi, &xfer, 1);
+}
+
+static int ad7380_buffer_postenable(struct iio_dev *indio_dev)
+{
+	struct ad7380_state *st = iio_priv(indio_dev);
+
+	return spi_offload_enable(st->spi_offload);
+}
+
+static int ad7380_buffer_predisable(struct iio_dev *indio_dev)
+{
+	struct ad7380_state *st = iio_priv(indio_dev);
+
+	spi_offload_disable(st->spi_offload);
+
+	return 0;
+}
+
+static int ad7380_buffer_postdisable(struct iio_dev *indio_dev)
+{
+	struct ad7380_state *st = iio_priv(indio_dev);
+
+	spi_offload_unprepare(st->spi_offload);
+
+	return 0;
+}
+
+static const struct iio_buffer_setup_ops ad7380_buffer_ops = {
+	.preenable = &ad7380_buffer_preenable,
+	.postenable = &ad7380_buffer_postenable,
+	.predisable = &ad7380_buffer_predisable,
+	.postdisable = &ad7380_buffer_postdisable,
+};
+
 static int ad7380_init(struct ad7380_state *st)
 {
 	int ret;
@@ -417,11 +465,40 @@ static int ad7380_probe(struct spi_device *spi)
 	indio_dev->modes = INDIO_DIRECT_MODE;
 	indio_dev->available_scan_masks = ad7380_2_channel_scan_masks;
 
-	ret = devm_iio_triggered_buffer_setup(&spi->dev, indio_dev,
-					      iio_pollfunc_store_time,
-					      ad7380_trigger_handler, NULL);
-	if (ret)
-		return ret;
+	st->offload_trigger =
+		devm_axi_spi_engine_offload_pwm_trigger_get_optional(&spi->dev);
+	if (IS_ERR(st->offload_trigger))
+		return dev_err_probe(&spi->dev, PTR_ERR(st->offload_trigger),
+				     "failed to get offload\n");
+
+	if (st->offload_trigger) {
+		/*
+		 * We can't have a soft timestamp (always last channel) when
+		 * using a hardware trigger.
+		 */
+		indio_dev->num_channels -= 1;
+
+		st->spi_offload = spi_offload_get(spi,
+			axi_spi_engine_offload_pwm_trigger_get_offload_id(
+							st->offload_trigger));
+		if (IS_ERR(st->spi_offload))
+			return dev_err_probe(&spi->dev,
+					     PTR_ERR(st->spi_offload),
+					     "failed to get SPI offload\n");
+
+		indio_dev->setup_ops = &ad7380_buffer_ops;
+		ret = axi_spi_engine_offload_pwm_trigger_setup(indio_dev,
+							st->offload_trigger);
+		if (ret)
+			return dev_err_probe(&spi->dev, ret,
+						"failed to setup offload\n");
+	} else {
+		ret = devm_iio_triggered_buffer_setup(&spi->dev, indio_dev,
+						iio_pollfunc_store_time,
+						ad7380_trigger_handler, NULL);
+		if (ret)
+			return ret;
+	}
 
 	ret = ad7380_init(st);
 	if (ret)
@@ -460,3 +537,4 @@ module_spi_driver(ad7380_driver);
 MODULE_AUTHOR("Stefan Popa <stefan.popa@analog.com>");
 MODULE_DESCRIPTION("Analog Devices AD738x ADC driver");
 MODULE_LICENSE("GPL");
+MODULE_IMPORT_NS(IIO_SPI_ENGINE_OFFLOAD);
