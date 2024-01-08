@@ -110,6 +110,48 @@
 
 		};
 
+		custom_dma_d2h: dma@7c450000 {
+			compatible = "adi,axi-dmac-1.00.a";
+			reg = <0x7c450000 0x1000>;
+			#dma-cells = <1>;
+			interrupts = <0 53 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clkc 16>;
+
+			adi,channels {
+				#size-cells = <0>;
+				#address-cells = <1>;
+
+				dma-channel@0 {
+					reg = <0>;
+					adi,source-bus-width = <32>;
+					adi,source-bus-type = <1>;
+					adi,destination-bus-width = <64>;
+					adi,destination-bus-type = <0>;
+				};
+			};
+		};
+
+		custom_dma_h2d: dma@7c460000 {
+			compatible = "adi,axi-dmac-1.00.a";
+			reg = <0x7c460000 0x1000>;
+			#dma-cells = <1>;
+			interrupts = <0 54 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clkc 16>;
+
+			adi,channels {
+				#size-cells = <0>;
+				#address-cells = <1>;
+
+				dma-channel@0 {
+					reg = <0>;
+					adi,source-bus-width = <64>;
+					adi,source-bus-type = <0>;
+					adi,destination-bus-width = <32>;
+					adi,destination-bus-type = <1>;
+				};
+			};
+		};
+
 		rx_dma: dma@7c400000 {
 			compatible = "adi,axi-dmac-1.00.a";
 			reg = <0x7c400000 0x1000>;
@@ -170,6 +212,18 @@
 			dma-names = "tx";
 			adi,axi-interpolation-core-available;
 			adi,axi-dds-default-scale = <0>;
+		};
+
+		custom_dma_d2h_device: axi-iio-dma-d2h@10 {
+			compatible = "adi,iio-dma-d2h-1.00.a";
+			dmas = <&custom_dma_d2h 0>;
+			dma-names = "d2h";
+		};
+
+		custom_dma_h2d_device: axi-iio-dma-h2d@11 {
+			compatible = "adi,iio-dma-h2d-1.00.a";
+			dmas = <&custom_dma_h2d 0>;
+			dma-names = "h2d";
 		};
 
 		mwipcore@43c00000 {

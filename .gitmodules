@@ -1,0 +1,3 @@
+[submodule "drivers/iio/axi_dmac"]
+	path = drivers/iio/axi_dmac
+	url = git@github.com:30N6/axi_dmac_driver.git
