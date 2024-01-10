@@ -103,6 +103,6 @@ source "drivers/iio/pressure/Kconfig"
 source "drivers/iio/proximity/Kconfig"
 source "drivers/iio/resolver/Kconfig"
 source "drivers/iio/temperature/Kconfig"
-source "drivers/iio/axi_dmac/Kconfig"
+source "drivers/iio/sw/axi_dmac_driver/Kconfig"
 
 endif # IIO

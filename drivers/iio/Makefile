@@ -47,5 +47,5 @@ obj-y += resolver/
 obj-y += temperature/
 obj-y += test/
 obj-y += trigger/
-obj-y += axi_dmac/
+obj-y += sw/axi_dmac_driver/
 
