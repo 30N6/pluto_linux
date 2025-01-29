@@ -91,10 +91,10 @@
 	adi,2rx-2tx-mode-enable;
 };
 
-&cf_ad9364_dac_core_0 {
-	/* This property is controlled by u-boot environment. */
-	compatible = "adi,axi-ad9361-dds-6.00.a";
-};
+//&cf_ad9364_dac_core_0 {
+//	/* This property is controlled by u-boot environment. */
+//	compatible = "adi,axi-ad9361-dds-6.00.a";
+//};
 
 / {
 	model = "Analog Devices PlutoSDR Rev.C (Z7010/AD9363)";

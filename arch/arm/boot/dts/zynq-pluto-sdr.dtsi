@@ -172,7 +172,7 @@
 				};
 			};
 		};
-
+/*
 		tx_dma: dma@7c420000 {
 			compatible = "adi,axi-dmac-1.00.a";
 			reg = <0x7c420000 0x1000>;
@@ -193,7 +193,7 @@
 				};
 			};
 		};
-
+*/
 		cf_ad9364_adc_core_0: cf-ad9361-lpc@79020000 {
 			compatible = "adi,axi-ad9361-6.00.a";
 			reg = <0x79020000 0x6000>;
@@ -202,7 +202,7 @@
 			spibus-connected = <&adc0_ad9364>;
 			adi,axi-decimation-core-available;
 		};
-
+/*
 		cf_ad9364_dac_core_0: cf-ad9361-dds-core-lpc@79024000 {
 			compatible = "adi,axi-ad9364-dds-6.00.a";
 			reg = <0x79024000 0x1000>;
@@ -213,7 +213,7 @@
 			adi,axi-interpolation-core-available;
 			adi,axi-dds-default-scale = <0>;
 		};
-
+*/
 		custom_dma_d2h_device: axi-iio-dma-d2h@10 {
 			compatible = "adi,iio-dma-d2h-1.00.a";
 			dmas = <&custom_dma_d2h 0>;
